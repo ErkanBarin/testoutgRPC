@@ -215,6 +215,7 @@ The framework includes multiple tests that verify connectivity to the t1 environ
 ```
 npm run test -- --project=t1 tests/limits/real_limits_test.spec.js
 npm run test -- --project=t1 tests/limits/elixir_compatible_test.spec.js
+npm run test -- --project=t1 tests/limits/exact_match_test.spec.js
 ```
 
 These tests demonstrate that:
@@ -229,11 +230,13 @@ We've tested several approaches to connect to the t1 environment:
 
 1. **Basic Test (real_limits_test.spec.js)**: Successfully connects and receives a 404 response, which confirms the server is reachable but the service/method path doesn't match.
 
-2. **Elixir-Compatible Test (elixir_compatible_test.spec.js)**: Attempts to match the exact Elixir API structure. It successfully reaches the server but receives a "Protocol error", indicating we've reached the server but there may be:
-   - A mismatch in protocol version
-   - Special authentication requirements
-   - TLS/SSL configuration differences between Node.js and Elixir
-   - Custom protocol extensions used by the Elixir gRPC implementation
+2. **Elixir-Compatible Test (elixir_compatible_test.spec.js)**: Attempts to match the exact Elixir API structure. It successfully reaches the server but receives a "Protocol error", indicating we've reached the server but there may be protocol mismatches.
+
+3. **Exact Match Test (exact_match_test.spec.js)**: Uses the proto-loader approach to dynamically load proto definitions. This approach:
+   - Dynamically loads proto files with proper import path resolution
+   - Uses the exact service name structure found in the Elixir codebase (`Lab.Rpc.Limits.Reaction.Service`)
+   - Successfully reaches the server (confirmed by receiving a protocol error)
+   - Demonstrates a more flexible approach that can adapt to service changes
 
 ### What We've Learned from the Elixir Implementation
 
@@ -249,10 +252,19 @@ By examining the Elixir implementation in `/Users/erkan.barin/Desktop/ApiCollect
 For actual production testing against t1, you would need:
 
 1. **Correct Proto Files**: The exact proto files used by the t1 environment (not our mock versions)
-2. **Matching Client Implementations**: Client code that matches the server-side service registration
+2. **Matching Client Implementations**: Client code that matches the server-side service registration 
 3. **Protocol Compatibility**: Ensure the gRPC protocol version matches between Node.js and Elixir
 4. **Valid Authentication**: Proper tokens and authentication mechanisms
 5. **TLS Configuration**: Appropriate certificates and TLS settings
+
+### Recommended Approach for Future Development
+
+Based on our testing, we recommend using the `@grpc/proto-loader` approach demonstrated in `exact_match_test.spec.js` for future development. This approach offers several advantages:
+
+1. **Dynamic Loading**: Proto files can be loaded at runtime without needing pre-generation
+2. **Flexible Path Resolution**: Better handling of import paths with the `includeDirs` option
+3. **Service Name Flexibility**: Can use the exact service names from the Elixir codebase
+4. **Easy Updates**: When proto definitions change, no need to regenerate stubs
 
 ### Current Status
 
