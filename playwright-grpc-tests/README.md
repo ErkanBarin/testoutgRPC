@@ -210,25 +210,53 @@ This flow is demonstrated in the `limits_test.spec.js` file.
 
 ## Testing Against t1 Environment
 
-The framework includes a test that verifies connectivity to the t1 environment. To run this test specifically:
+The framework includes multiple tests that verify connectivity to the t1 environment. To run these tests specifically:
 
 ```
 npm run test -- --project=t1 tests/limits/real_limits_test.spec.js
+npm run test -- --project=t1 tests/limits/elixir_compatible_test.spec.js
 ```
 
-This test demonstrates that:
+These tests demonstrate that:
 
 1. The gRPC client can connect to the t1 environment server
-2. The secure connection (SSL) is established successfully
-3. Authentication headers are properly set (though we receive a 404 because we're using mock services)
+2. The secure connection can be established
+3. Authentication headers can be properly set
 
-The test uses secure credentials and proper URL formatting to connect to the t1 environment. While we receive a 404 response from the server (since our mock service definitions don't match what's actually deployed), this confirms successful connectivity to the environment.
+### Connectivity Results
 
-For actual testing against t1, you would need:
+We've tested several approaches to connect to the t1 environment:
 
-1. The correct proto files that match the deployed services
-2. Valid authentication credentials for the environment
-3. Test data appropriate for the t1 environment
+1. **Basic Test (real_limits_test.spec.js)**: Successfully connects and receives a 404 response, which confirms the server is reachable but the service/method path doesn't match.
+
+2. **Elixir-Compatible Test (elixir_compatible_test.spec.js)**: Attempts to match the exact Elixir API structure. It successfully reaches the server but receives a "Protocol error", indicating we've reached the server but there may be:
+   - A mismatch in protocol version
+   - Special authentication requirements
+   - TLS/SSL configuration differences between Node.js and Elixir
+   - Custom protocol extensions used by the Elixir gRPC implementation
+
+### What We've Learned from the Elixir Implementation
+
+By examining the Elixir implementation in `/Users/erkan.barin/Desktop/ApiCollection/limits_flask/t1/limit_test.exs`, we found:
+
+1. The Elixir code uses dedicated client modules (`LabClient.Reaction.Limits`, etc.)
+2. The API follows a specific pattern: `LimitsReactionAPI.set_limit!`
+3. Requests include specific metadata via `Context.reaction_context`
+4. Authentication uses the same structure with `site_id`, `subject_info`, `user_id`, and `user_token`
+
+### Requirements for Complete t1 Testing
+
+For actual production testing against t1, you would need:
+
+1. **Correct Proto Files**: The exact proto files used by the t1 environment (not our mock versions)
+2. **Matching Client Implementations**: Client code that matches the server-side service registration
+3. **Protocol Compatibility**: Ensure the gRPC protocol version matches between Node.js and Elixir
+4. **Valid Authentication**: Proper tokens and authentication mechanisms
+5. **TLS Configuration**: Appropriate certificates and TLS settings
+
+### Current Status
+
+The tests are successful in verifying basic connectivity to the t1 environment. For full functional testing, you would need to work with the development team to get the complete proto files and understand the specific protocol requirements of the Elixir gRPC implementation.
 
 The current implementation demonstrates the technical ability to connect to t1 but would need proper proto files and service definitions for complete functional testing.
 
