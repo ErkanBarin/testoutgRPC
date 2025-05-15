@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "sync-protos": "bash ./scripts/sync_protos.sh",
-    "generate-stubs": "npm run sync-protos && rm -rf ./generated && mkdir -p ./generated && protoc --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts --ts_out=service=grpc-js,mode=grpc-js:./generated --js_out=import_style=commonjs,binary:./generated -I ./protos $(find ./protos -name '*.proto')",
+    "generate-stubs": "npm run sync-protos && rm -rf ./generated && mkdir -p ./generated && npx grpc_tools_node_protoc --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts --ts_out=service=grpc-js,mode=grpc-js:./generated --js_out=import_style=commonjs,binary:./generated --grpc_out=grpc_js:./generated -I ./protos $(find ./protos -name '*.proto')",
     "lint": "eslint . --ext .js,.mjs",
     "lint:fix": "eslint . --ext .js,.mjs --fix",
     "format": "prettier --write .",

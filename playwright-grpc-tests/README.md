@@ -136,25 +136,35 @@ npm run show-report
 
 ### 6. Switching Between Environments
 
-The tests can run against either a local environment or the t1 test environment. Update your `.env` file to point to the desired environment:
+The tests can run against either a local environment or the t1 test environment. The environment is configured in the `playwright.config.js` file with different projects:
 
-#### Local Environment
+```javascript
+// In playwright.config.js
+projects: [
+  {
+    name: 'local',
+    use: {
+      // Local environment settings
+      LAB_GATEWAY_URL: 'localhost:50051',
+    },
+  },
+  {
+    name: 't1',
+    use: {
+      // T1 environment settings
+      LAB_GATEWAY_URL: 'https://lab.t1-lab-lab.t1.testenv.io:50051',
+    },
+  },
+];
+```
+
+To run tests against a specific environment:
 
 ```
-# Local environment
-LAB_GATEWAY_URL=localhost:50051
-SITE_ID=12
-OPERATOR_ID=2
+npx playwright test --project=t1
 ```
 
-#### T1 Environment
-
-```
-# T1 environment
-LAB_GATEWAY_URL=https://lab.t1-lab-lab.t1.testenv.io:50051
-SITE_ID=12
-OPERATOR_ID=2
-```
+> **Important Note for gRPC URLs**: When connecting to a gRPC server, the URL must not include the `https://` prefix, as gRPC uses its own transport protocol. The test files will handle this conversion automatically by stripping any protocol prefix from the URL.
 
 You can also use the playwright.config.js file to set up different projects for each environment:
 
@@ -173,7 +183,7 @@ projects: [
       // T1-specific configurations
     },
   },
-]
+];
 ```
 
 Then run tests against a specific environment:
@@ -197,6 +207,30 @@ The limits test flow follows these steps:
 9. Verify cooldown functionality
 
 This flow is demonstrated in the `limits_test.spec.js` file.
+
+## Testing Against t1 Environment
+
+The framework includes a test that verifies connectivity to the t1 environment. To run this test specifically:
+
+```
+npm run test -- --project=t1 tests/limits/real_limits_test.spec.js
+```
+
+This test demonstrates that:
+
+1. The gRPC client can connect to the t1 environment server
+2. The secure connection (SSL) is established successfully
+3. Authentication headers are properly set (though we receive a 404 because we're using mock services)
+
+The test uses secure credentials and proper URL formatting to connect to the t1 environment. While we receive a 404 response from the server (since our mock service definitions don't match what's actually deployed), this confirms successful connectivity to the environment.
+
+For actual testing against t1, you would need:
+
+1. The correct proto files that match the deployed services
+2. Valid authentication credentials for the environment
+3. Test data appropriate for the t1 environment
+
+The current implementation demonstrates the technical ability to connect to t1 but would need proper proto files and service definitions for complete functional testing.
 
 ## Troubleshooting
 

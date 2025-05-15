@@ -1,9 +1,0 @@
-syntax = "proto3";
-package Lab.Global;
-
-import "lab_protobuf/elixirpb.proto";
-
-message Date {
-  option (elixirpb.message).typespec = "Date.t";
-  uint32 iso_days                    = 1;
-}

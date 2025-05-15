@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package lab.element;
+
+import "lab/common/common_types.proto";
+
+// LimitsElementService provides methods to query limit data
+service LimitsElementService {
+  // GetLimits retrieves limits for a user using filters
+  rpc GetLimits(GetLimitsRequest) returns (GetLimitsResponse);
+}
+
+// Request for getting limits with filters
+message GetLimitsRequest {
+  LimitsFilter filter = 1;
+}
+
+// Filter for querying limits
+message LimitsFilter {
+  string user_id = 1;
+  int32 period_type = 2; // Optional
+}
+
+// Response with limits data
+message GetLimitsResponse {
+  repeated LimitModel models = 1;
+}
+
+// Model representing a limit from storage
+message LimitModel {
+  string id = 1;
+  string user_id = 2;
+  int32 period_type = 3;
+  lab.common.Money active_amount = 4;
+  int32 limit_type = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}

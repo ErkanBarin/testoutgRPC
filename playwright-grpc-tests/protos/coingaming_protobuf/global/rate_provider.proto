@@ -1,9 +1,0 @@
-syntax = "proto3";
-package Lab.Global;
-
-enum RateProvider {
-  FIXER          = 0;
-  BITCOINAVERAGE = 1;
-  COINMARKETCAP  = 2;
-  DUMMY          = 3;
-}

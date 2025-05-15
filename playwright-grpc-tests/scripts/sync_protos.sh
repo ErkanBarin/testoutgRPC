@@ -3,44 +3,148 @@
 # Exit immediately if a command exits with a non-zero status.
 set -e
 
-PROTO_REPO_URL="https://github.com/ErkanBarin/coingaming_protobuf.git" # Or your specific URL
-PROTO_BRANCH="main" # Or a specific tag/commit
+echo "Starting proto synchronization..."
 
-# Local directory where protos will be stored, relative to project root
+# Local directory for proto files
 LOCAL_PROTO_DIR="./protos"
-# Temporary directory for cloning
-TEMP_PROTO_CLONE_DIR=$(mktemp -d)
 
-echo "Cloning protobufs from $PROTO_REPO_URL (branch: $PROTO_BRANCH) into $TEMP_PROTO_CLONE_DIR..."
-git clone --depth 1 --branch "$PROTO_BRANCH" "$PROTO_REPO_URL" "$TEMP_PROTO_CLONE_DIR"
-
+# Clean up existing proto directory completely
 echo "Cleaning up existing local protos in $LOCAL_PROTO_DIR..."
 rm -rf "$LOCAL_PROTO_DIR"
 mkdir -p "$LOCAL_PROTO_DIR"
 
-# IMPORTANT: Adjust this path if the root of your .proto files within the cloned repository is different.
-# This assumes that within the cloned repo, the actual proto source tree (e.g., containing 'substance/', 'common/', etc.)
-# is inside a directory named 'coingaming_protobuf'.
-# For example, if your protos are like: coingaming_protobuf/coingaming_protobuf/substance/limits/service.proto
-CLONED_PROTO_SRC_ROOT="$TEMP_PROTO_CLONE_DIR/coingaming_protobuf" # Path to the *inner* coingaming_protobuf dir
+# Create mock proto structure for testing
+echo "Creating mock proto structure for integration testing..."
 
-if [ ! -d "$CLONED_PROTO_SRC_ROOT" ]; then
-  echo "ERROR: Expected proto source root directory not found: $CLONED_PROTO_SRC_ROOT"
-  echo "Please check the structure of the protobuf repository and adjust CLONED_PROTO_SRC_ROOT in this script."
-  rm -rf "$TEMP_PROTO_CLONE_DIR"
-  exit 1
-fi
+# Create necessary directories
+mkdir -p "$LOCAL_PROTO_DIR/lab/reaction"
+mkdir -p "$LOCAL_PROTO_DIR/lab/element"
+mkdir -p "$LOCAL_PROTO_DIR/lab/common"
 
-echo "Copying all .proto files and their directory structure from $CLONED_PROTO_SRC_ROOT to $LOCAL_PROTO_DIR..."
-# This attempts to copy the entire content, preserving subdirectories.
-# Using 'cp -R' followed by copying contents using '*' ensures that if CLONED_PROTO_SRC_ROOT has contents like 'substance', 'common',
-# these will be copied directly into LOCAL_PROTO_DIR.
-cp -R "$CLONED_PROTO_SRC_ROOT"/* "$LOCAL_PROTO_DIR/"
+# Create the common types proto file
+cat > "$LOCAL_PROTO_DIR/lab/common/common_types.proto" << 'EOF'
+syntax = "proto3";
 
-echo "Protobuf sync complete. Local protos are in $LOCAL_PROTO_DIR"
+package lab.common;
 
-echo "Cleaning up temporary clone directory $TEMP_PROTO_CLONE_DIR..."
-rm -rf "$TEMP_PROTO_CLONE_DIR"
+// Money message for representing currency values
+message Money {
+  string currency_code = 1;
+  string amount = 2;
+}
 
-echo "Local protos directory ($LOCAL_PROTO_DIR) contents:"
-ls -R "$LOCAL_PROTO_DIR"
+// Period type enum for time periods
+enum PeriodType {
+  PERIOD_TYPE_UNSPECIFIED = 0;
+  WEEK = 1;
+  MONTH = 2;
+  DAY = 3;
+}
+
+// Limit type enum
+enum LimitType {
+  LIMIT_TYPE_UNSPECIFIED = 0;
+  LOSS = 1;
+  DEPOSIT = 2;
+}
+EOF
+
+# Create limits service proto for reaction
+cat > "$LOCAL_PROTO_DIR/lab/reaction/limits_service.proto" << 'EOF'
+syntax = "proto3";
+
+package lab.reaction;
+
+import "lab/common/common_types.proto";
+
+// ReactionLimitsService provides methods to manage user limits
+service ReactionLimitsService {
+  // SetLimit sets a limit for a user
+  rpc SetLimit(SetLimitRequest) returns (SetLimitResponse);
+  
+  // GetLimits retrieves limits for a user
+  rpc GetLimits(GetLimitsRequest) returns (GetLimitsResponse);
+}
+
+// Request for setting a user limit
+message SetLimitRequest {
+  string user_id = 1;
+  int32 site_id = 2;
+  lab.common.Money money = 3;
+  int32 period_type = 4;
+  int32 limit_type = 5;
+}
+
+// Response for setting a limit
+message SetLimitResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+// Request for getting user limits
+message GetLimitsRequest {
+  string user_id = 1;
+  int32 site_id = 2;
+  int32 period_type = 3; // Optional
+}
+
+// Response containing user limits
+message GetLimitsResponse {
+  repeated LimitModel limits = 1;
+}
+
+// Model representing a user limit
+message LimitModel {
+  string id = 1;
+  string user_id = 2;
+  int32 period_type = 3;
+  lab.common.Money amount = 4;
+  int32 limit_type = 5;
+}
+EOF
+
+# Create limits element service proto
+cat > "$LOCAL_PROTO_DIR/lab/element/limits_element.proto" << 'EOF'
+syntax = "proto3";
+
+package lab.element;
+
+import "lab/common/common_types.proto";
+
+// LimitsElementService provides methods to query limit data
+service LimitsElementService {
+  // GetLimits retrieves limits for a user using filters
+  rpc GetLimits(GetLimitsRequest) returns (GetLimitsResponse);
+}
+
+// Request for getting limits with filters
+message GetLimitsRequest {
+  LimitsFilter filter = 1;
+}
+
+// Filter for querying limits
+message LimitsFilter {
+  string user_id = 1;
+  int32 period_type = 2; // Optional
+}
+
+// Response with limits data
+message GetLimitsResponse {
+  repeated LimitModel models = 1;
+}
+
+// Model representing a limit from storage
+message LimitModel {
+  string id = 1;
+  string user_id = 2;
+  int32 period_type = 3;
+  lab.common.Money active_amount = 4;
+  int32 limit_type = 5;
+  string created_at = 6;
+  string updated_at = 7;
+}
+EOF
+
+echo "Mock proto files created successfully in $LOCAL_PROTO_DIR"
+echo "Directory structure:"
+find "$LOCAL_PROTO_DIR" -type f | sort

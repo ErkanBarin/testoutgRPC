@@ -1,7 +1,0 @@
-syntax = "proto3";
-package Lab.Global;
-
-message UDecimal {
-  uint64 coef = 1;
-  int32 exp   = 2;
-}

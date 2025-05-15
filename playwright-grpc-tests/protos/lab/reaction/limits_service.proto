@@ -1,71 +1,50 @@
 syntax = "proto3";
 
-package Lab.Rpc.Limits.Reaction;
+package lab.reaction;
 
-import "coingaming_protobuf/substance/limits/reaction/check_limit_with_counter.proto";
-import "coingaming_protobuf/substance/limits/reaction/confirm_limit_amount.proto";
-import "coingaming_protobuf/substance/limits/reaction/confirm_unset_limit.proto";
-import "coingaming_protobuf/substance/limits/reaction/delete_limit.proto";
-import "coingaming_protobuf/substance/limits/reaction/increase_counters.proto";
-import "coingaming_protobuf/substance/limits/reaction/reject_limit_amount.proto";
-import "coingaming_protobuf/substance/limits/reaction/reject_unset_limit.proto";
-import "coingaming_protobuf/substance/limits/reaction/set_limit.proto";
-import "coingaming_protobuf/substance/limits/reaction/unset_limit.proto";
-import "lab_protobuf/global/context.proto";
+import "lab/common/common_types.proto";
 
-message CheckLimitWithCounterRequest {
-  .Lab.Global.Context context = 1;
-  .Lab.Substance.Limits.Reaction.CheckLimitWithCounter.Request request = 2;
+// ReactionLimitsService provides methods to manage user limits
+service ReactionLimitsService {
+  // SetLimit sets a limit for a user
+  rpc SetLimit(SetLimitRequest) returns (SetLimitResponse);
+  
+  // GetLimits retrieves limits for a user
+  rpc GetLimits(GetLimitsRequest) returns (GetLimitsResponse);
 }
 
-message ConfirmLimitAmountRequest {
-  .Lab.Global.Context context = 1;
-  .Lab.Substance.Limits.Reaction.ConfirmLimitAmount.Request request = 2;
-}
-
-message ConfirmUnsetLimitRequest {
-  .Lab.Global.Context context = 1;
-  .Lab.Substance.Limits.Reaction.ConfirmUnsetLimit.Request request = 2;
-}
-
-message DeleteLimitRequest {
-  .Lab.Global.Context context = 1;
-  .Lab.Substance.Limits.Reaction.DeleteLimit.Request request = 2;
-}
-
-message IncreaseCountersRequest {
-  .Lab.Global.Context context = 1;
-  .Lab.Substance.Limits.Reaction.IncreaseCounters.Request request = 2;
-}
-
-message RejectLimitAmountRequest {
-  .Lab.Global.Context context = 1;
-  .Lab.Substance.Limits.Reaction.RejectLimitAmount.Request request = 2;
-}
-
-message RejectUnsetLimitRequest {
-  .Lab.Global.Context context = 1;
-  .Lab.Substance.Limits.Reaction.RejectUnsetLimit.Request request = 2;
-}
-
+// Request for setting a user limit
 message SetLimitRequest {
-  .Lab.Global.Context context = 1;
-  .Lab.Substance.Limits.Reaction.SetLimit.Request request = 2;
+  string user_id = 1;
+  int32 site_id = 2;
+  lab.common.Money money = 3;
+  int32 period_type = 4;
+  int32 limit_type = 5;
 }
 
-message UnsetLimitRequest {
-  .Lab.Global.Context context = 1;
-  .Lab.Substance.Limits.Reaction.UnsetLimit.Request request = 2;
+// Response for setting a limit
+message SetLimitResponse {
+  bool success = 1;
+  string message = 2;
 }
 
-service Service {
-  rpc CheckLimitWithCounter(CheckLimitWithCounterRequest) returns (.Lab.Substance.Limits.Reaction.CheckLimitWithCounter.Response);
-  rpc ConfirmLimitAmount(ConfirmLimitAmountRequest) returns (.Lab.Substance.Limits.Reaction.ConfirmLimitAmount.Response);
-  rpc ConfirmUnsetLimit(ConfirmUnsetLimitRequest) returns (.Lab.Substance.Limits.Reaction.ConfirmUnsetLimit.Response);
-  rpc DeleteLimit(DeleteLimitRequest) returns (.Lab.Substance.Limits.Reaction.DeleteLimit.Response);
-  rpc IncreaseCounters(IncreaseCountersRequest) returns (.Lab.Substance.Limits.Reaction.IncreaseCounters.Response);
-  rpc RejectLimitAmount(RejectLimitAmountRequest) returns (.Lab.Substance.Limits.Reaction.RejectLimitAmount.Response);
-  rpc RejectUnsetLimit(RejectUnsetLimitRequest) returns (.Lab.Substance.Limits.Reaction.RejectUnsetLimit.Response);
-  rpc SetLimit(SetLimitRequest) returns (.Lab.Substance.Limits.Reaction.SetLimit.Response);
-  rpc UnsetLimit(UnsetLimitRequest) returns (.Lab.Substance.Limits.Reaction.UnsetLimit.Response);
+// Request for getting user limits
+message GetLimitsRequest {
+  string user_id = 1;
+  int32 site_id = 2;
+  int32 period_type = 3; // Optional
+}
+
+// Response containing user limits
+message GetLimitsResponse {
+  repeated LimitModel limits = 1;
+}
+
+// Model representing a user limit
+message LimitModel {
+  string id = 1;
+  string user_id = 2;
+  int32 period_type = 3;
+  lab.common.Money amount = 4;
+  int32 limit_type = 5;
 }
