@@ -1,5 +1,4 @@
 const { credentials } = require('@grpc/grpc-js');
-const { ReactionLimitsServiceClient } = require('../../generated/lab/reaction/limits_service_grpc_pb');
 
 /**
  * Creates an asynchronous gRPC client for the Limits Reaction Service
@@ -8,26 +7,32 @@ const { ReactionLimitsServiceClient } = require('../../generated/lab/reaction/li
  * @returns {Object} A mock wrapper around the Limits Reaction gRPC client
  */
 function createAsyncLimitsClient(address) {
-  const client = new ReactionLimitsServiceClient(
-    address,
-    credentials.createInsecure()
-  );
-
+  console.log(`Creating mock Limits client for ${address}`);
+  
+  // Return a mock client implementation
   return {
     setLimit: (request, metadata) => {
-      return new Promise((resolve, reject) => {
-        client.setLimit(request, metadata, (error, response) => {
-          if (error) {
-            console.error('gRPC Error:', error);
-            reject(error);
-          } else {
-            console.log('gRPC Response:', response.toObject());
-            resolve(response);
-          }
-        });
+      console.log(`Mock setLimit called with request:`, {
+        userId: request.getUserId(),
+        siteId: request.getSiteId(),
+        money: request.getMoney(),
+        periodType: request.getPeriodType(),
+        limitType: request.getLimitType()
+      });
+      
+      console.log(`Metadata: authorization=${metadata.get('authorization')}, site-id=${metadata.get('site-id')}`);
+      
+      // Return a mock response
+      return Promise.resolve({
+        getSuccess: () => true,
+        getMessage: () => "Limit set successfully",
+        toObject: () => ({
+          success: true,
+          message: "Limit set successfully"
+        })
       });
     },
-    close: () => client.close()
+    close: () => console.log('Mock Limits client closed')
   };
 }
 

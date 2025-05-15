@@ -1,48 +1,41 @@
 {
   "name": "playwright-grpc-tests",
   "version": "1.0.0",
-  "type": "commonjs",
-  "description": "Playwright test automation for gRPC services",
+  "description": "Playwright tests for gRPC services",
+  "main": "index.js",
   "scripts": {
     "sync-protos": "bash ./scripts/sync_protos.sh",
-    "generate-stubs": "npm run sync-protos && rm -rf ./generated && mkdir -p ./generated && ./node_modules/.bin/grpc_tools_node_protoc --js_out=import_style=commonjs,binary:./generated --grpc_out=grpc_js:./generated --plugin=protoc-gen-grpc=./node_modules/.bin/grpc_tools_node_protoc_plugin --proto_path=./protos ./protos/lab/reaction/limits_service.proto ./protos/lab/element/limits_service.proto",
-    "test": "npx playwright test tests/limits/simple_limits_test.spec.js",
-    "test:local": "node scripts/set-env.js local && npm test",
-    "test:t1": "node scripts/set-env.js t1 && npm test",
-    "test:simple": "npx playwright test tests/limits/simple_limits_test.spec.js",
-    "test:simple:local": "node scripts/set-env.js local && npm run test:simple",
-    "test:simple:t1": "node scripts/set-env.js t1 && npm run test:simple",
+    "generate-stubs": "npm run sync-protos && rm -rf ./generated && mkdir -p ./generated && protoc --plugin=protoc-gen-ts=./node_modules/.bin/protoc-gen-ts --ts_out=service=grpc-js,mode=grpc-js:./generated --js_out=import_style=commonjs,binary:./generated -I ./protos $(find ./protos -name '*.proto')",
     "lint": "eslint . --ext .js,.mjs",
+    "lint:fix": "eslint . --ext .js,.mjs --fix",
     "format": "prettier --write .",
-    "show-report": "playwright show-report",
-    "set-env:local": "node scripts/set-env.js local",
-    "set-env:t1": "node scripts/set-env.js t1"
+    "test": "npm run generate-stubs && npx playwright test",
+    "test:headed": "npm run generate-stubs && npx playwright test --headed",
+    "show-report": "npx playwright show-report"
   },
   "keywords": [
     "playwright",
     "grpc",
-    "testing",
-    "automation",
-    "elixir"
+    "testing"
   ],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "@ayonli/grpc-async": "^0.1.0",
-    "@grpc/grpc-js": "^1.8.0",
-    "dotenv": "^16.0.3",
-    "google-protobuf": "^3.21.2",
-    "jsonwebtoken": "^9.0.0",
-    "protobufjs": "^7.2.5"
-  },
   "devDependencies": {
-    "@faker-js/faker": "^7.6.0",
-    "@playwright/test": "^1.36.0",
-    "eslint": "^8.44.0",
-    "eslint-plugin-playwright": "^0.12.0",
+    "@faker-js/faker": "^8.0.0",
+    "@grpc/grpc-js": "^1.9.0",
+    "@playwright/test": "^1.40.0",
+    "dotenv": "^16.0.0",
+    "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-playwright": "^0.18.0",
+    "globals": "^13.0.0",
     "grpc-tools": "^1.12.4",
-    "prettier": "^2.8.8",
-    "protobufjs-cli": "^1.1.2",
-    "protoc-gen-ts": "^0.8.6"
+    "jsonwebtoken": "^9.0.0",
+    "prettier": "^3.0.0",
+    "protoc-gen-ts": "^0.8.7", 
+    "uuid": "^9.0.0"
+  },
+  "dependencies": {
+    "@ayonli/grpc-async": "^1.0.0"
   }
 }
