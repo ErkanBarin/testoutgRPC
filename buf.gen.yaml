@@ -1,0 +1,8 @@
+version: v1
+plugins:
+  - name: js
+    out: generated
+    opt: import_style=commonjs,binary
+  - name: grpc
+    out: generated 
+    opt: grpc_js

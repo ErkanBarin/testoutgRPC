@@ -1,0 +1,28 @@
+syntax = "proto3";
+package Lab.Global;
+
+enum MerchantRequisiteKind {
+  ENUM_VALUE_NOT_IN_USE = 0 [deprecated = true];
+  USER_ID               = 1;
+  LANGUAGE              = 2;
+  DEVICE_TYPE           = 3;
+  CPF                   = 4;
+  EMAIL                 = 5;
+  CUSTOMER_FIRST_NAME   = 6;
+  CUSTOMER_LAST_NAME    = 7;
+  PHONE                 = 8;
+  EXPIRY_SECONDS        = 9;
+  USER_CUSTOMER_TYPE    = 10;
+  USER_IP_ADDRESS       = 11;
+  USER_GROUP_TAG        = 12;
+  PHONE_VERIFIED        = 13;
+}
+
+message MerchantRequisite {
+  MerchantRequisiteKind kind = 1;
+}
+
+message MerchantRequisiteInput {
+  MerchantRequisiteKind kind = 1;
+  string value               = 2;
+}

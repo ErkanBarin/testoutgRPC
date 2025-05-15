@@ -1,0 +1,34 @@
+syntax = "proto3";
+
+package Lab.Substance.Limits.Effect.LimitReachedNotification;
+
+import "lab_protobuf/google_protobuf.proto";
+import "lab_protobuf/global/datetime.proto";
+import "lab_protobuf/global/udecimal.proto";
+import "coingaming_protobuf/substance/limits/global.proto";
+
+message Request {
+  Model before = 1;
+  Model after  = 2;
+}
+
+message Model {
+  // The ID of the user to whom the limit applies.
+  Google.Protobuf.UInt64Value user_id = 1;
+  // The amount value.
+  .Lab.Global.UDecimal limit_amount = 2;
+  // The timestamp when the limit will reset
+  .Lab.Global.DateTime limit_reset_at = 3;
+  // The type of limit. Accepted values: [LOSS, DEPOSIT].
+  .Lab.Substance.Limits.Global.LimitTypeValue limit_type = 4;
+  // The period type of the limit. Accepted values: [WEEK, MONTH].
+  .Lab.Substance.Limits.Global.PeriodTypeValue period_type = 5;
+
+  message Fields {
+    Google.Protobuf.BoolValue user_id        = 1;
+    Google.Protobuf.BoolValue limit_amount   = 2;
+    Google.Protobuf.BoolValue limit_reset_at = 3;
+    Google.Protobuf.BoolValue limit_type     = 4;
+    Google.Protobuf.BoolValue period_type    = 5;
+  }
+}

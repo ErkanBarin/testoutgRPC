@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package Lab.Substance.Limits.Observation.LimitReachedNotification;
+
+import "coingaming_protobuf/substance/limits/effect/limit_reached_notification.proto";
+import "lab_protobuf/google_protobuf.proto";
+import "lab_protobuf/global/datetime.proto";
+import "lab_protobuf/global/udecimal.proto";
+import "coingaming_protobuf/substance/limits/global.proto";
+
+message Request {
+  // generic
+  Lab.Substance.Limits.Effect.LimitReachedNotification.Model.Fields before  = 1;
+  Lab.Substance.Limits.Effect.LimitReachedNotification.Model.Fields after   = 2;
+  Lab.Substance.Limits.Effect.LimitReachedNotification.Model.Fields trigger = 3;
+
+  // specific
+  repeated Google.Protobuf.UInt64Value user_id                      = 4;
+  repeated .Lab.Global.UDecimal limit_amount                        = 5;
+  repeated .Lab.Global.DateTime limit_reset_at                      = 6;
+  repeated .Lab.Substance.Limits.Global.LimitTypeValue limit_type   = 7;
+  repeated .Lab.Substance.Limits.Global.PeriodTypeValue period_type = 8;
+}

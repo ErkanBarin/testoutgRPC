@@ -1,0 +1,19 @@
+syntax = "proto3";
+package Lab.Global;
+
+import "lab_protobuf/google_protobuf.proto";
+
+message Pagination {
+  Google.Protobuf.UInt64Value offset = 1; // Default value is 0 set in code, see `lab_flask`
+  Google.Protobuf.UInt32Value limit  = 2; // Default value is 100 set in code, see `lab_flask`
+  Connection connection              = 3;
+
+  // https://facebook.github.io/relay/graphql/connections.htm
+  message Connection {
+    Google.Protobuf.StringValue after = 1;
+    Google.Protobuf.UInt32Value first = 2;
+
+    Google.Protobuf.StringValue before = 3;
+    Google.Protobuf.UInt32Value last   = 4;
+  }
+}

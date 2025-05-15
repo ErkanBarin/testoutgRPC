@@ -1,0 +1,61 @@
+syntax = "proto3";
+package Lab.Global;
+
+import "lab_protobuf/elixirpb.proto";
+import "lab_protobuf/google_protobuf.proto";
+
+message UserAgent {
+  option (elixirpb.message).typespec = "UAInspector.Result.t | UAInspector.Result.Bot.t";
+  string user_agent                  = 1;
+
+  oneof either {
+    Browser browser = 2;
+    Bot bot         = 3;
+  }
+
+  message Browser {
+    option (elixirpb.message).typespec         = "UAInspector.Result.t";
+    Client client                              = 1;
+    Device device                              = 2;
+    Os os                                      = 3;
+    Google.Protobuf.StringValue browser_family = 4;
+    Google.Protobuf.StringValue os_family      = 5;
+
+    message Client {
+      option (elixirpb.message).typespec         = "UAInspector.Result.Client.t";
+      Google.Protobuf.StringValue engine         = 1;
+      Google.Protobuf.StringValue engine_version = 2;
+      Google.Protobuf.StringValue name           = 3;
+      Google.Protobuf.StringValue type           = 4;
+      Google.Protobuf.StringValue version        = 5;
+    }
+
+    message Device {
+      option (elixirpb.message).typespec = "UAInspector.Result.Device.t";
+      Google.Protobuf.StringValue brand  = 1;
+      Google.Protobuf.StringValue model  = 2;
+      Google.Protobuf.StringValue type   = 3;
+    }
+
+    message Os {
+      option (elixirpb.message).typespec   = "UAInspector.Result.OS.t";
+      Google.Protobuf.StringValue name     = 1;
+      Google.Protobuf.StringValue platform = 2;
+      Google.Protobuf.StringValue version  = 3;
+    }
+  }
+
+  message Bot {
+    option (elixirpb.message).typespec   = "UAInspector.Result.Bot.t";
+    Google.Protobuf.StringValue name     = 1;
+    Google.Protobuf.StringValue category = 2;
+    Google.Protobuf.StringValue url      = 3;
+    Producer producer                    = 4;
+
+    message Producer {
+      option (elixirpb.message).typespec = "UAInspector.Result.BotProducer.t";
+      Google.Protobuf.StringValue name   = 1;
+      Google.Protobuf.StringValue url    = 2;
+    }
+  }
+}

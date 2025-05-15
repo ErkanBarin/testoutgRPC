@@ -1,0 +1,72 @@
+syntax = "proto3";
+package Lab.Substance.Limits.Element.LimitLog;
+
+import "lab_protobuf/global/datetime.proto";
+import "lab_protobuf/global/pagination.proto";
+import "lab_protobuf/global/sort_direction.proto";
+import "lab_protobuf/google_protobuf.proto";
+import "coingaming_protobuf/substance/limits/global.proto";
+import "lab_protobuf/global/currency_code.proto";
+import "lab_protobuf/global/udecimal.proto";
+import "lab_protobuf/substance/lab/element/site.proto";
+
+//
+// transport
+//
+
+message Request {
+  Model.Fields fields               = 1;
+  Filter filter                     = 2;
+  Sort sort                         = 3;
+  .Lab.Global.Pagination pagination = 4;
+}
+
+message Response {
+  repeated Model models                   = 1;
+  Google.Protobuf.UInt64Value total_count = 2;
+}
+
+//
+// business
+//
+
+message Model {
+  .Google.Protobuf.UInt64Value id                          = 1;
+  .Google.Protobuf.UInt64Value user_id                     = 2;
+  .Lab.Substance.Lab.Element.Site.Model site               = 3;
+  .Lab.Global.CurrencyCodeValue currency                   = 4;
+  .Lab.Substance.Limits.Global.PeriodTypeValue period_type = 5;
+  .Lab.Substance.Limits.Global.LimitLogValue log           = 6;
+  .Lab.Global.UDecimal amount                              = 7;
+  .Lab.Global.DateTime inserted_at                         = 8;
+  .Google.Protobuf.UInt64Value limit_id                    = 9;
+  .Google.Protobuf.BoolValue is_active                     = 10;
+
+  message Fields {
+    .Google.Protobuf.BoolValue id                     = 1;
+    .Google.Protobuf.BoolValue user_id                = 2;
+    .Lab.Substance.Lab.Element.Site.Model.Fields site = 3;
+    .Google.Protobuf.BoolValue currency               = 4;
+    .Google.Protobuf.BoolValue period_type            = 5;
+    .Google.Protobuf.BoolValue log                    = 6;
+    .Google.Protobuf.BoolValue amount                 = 7;
+    .Google.Protobuf.BoolValue inserted_at            = 8;
+    .Google.Protobuf.BoolValue limit_id               = 9;
+    .Google.Protobuf.BoolValue is_active              = 10;
+  }
+}
+
+message Filter {
+  repeated uint64 user_ids                                  = 1;
+  repeated .Lab.Global.CurrencyCodeValue currencies         = 2;
+  .Lab.Substance.Lab.Element.Site.Filter site               = 3;
+  repeated .Lab.Substance.Limits.Global.LimitLog logs       = 4;
+  .Lab.Substance.Limits.Global.DateTimeRange datetime_range = 5;
+  .Google.Protobuf.BoolValue is_active                      = 6;
+}
+
+message Sort {
+  .Lab.Global.SortDirectionValue id          = 1;
+  .Lab.Global.SortDirectionValue inserted_at = 2;
+  .Lab.Global.SortDirectionValue user_id     = 3;
+}

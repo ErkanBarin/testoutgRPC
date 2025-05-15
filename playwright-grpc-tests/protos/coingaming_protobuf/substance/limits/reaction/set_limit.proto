@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package Lab.Substance.Limits.Reaction.SetLimit;
+
+import "coingaming_protobuf/global/input_field_error.proto";
+import "lab_protobuf/google_protobuf.proto";
+import "lab_protobuf/global/umoney.proto";
+import "coingaming_protobuf/substance/limits/global.proto";
+
+// The SetLimit service allows setting a limit for a user.
+message Request {
+  // The ID of the user for whom the limit is being set.
+  uint64 user_id                                           = 1;
+  // The ID of the site where the limit is being set.
+  Google.Protobuf.UInt64Value site_id                      = 2;
+  // The amount of money for the limit. It's composed of a specific currency_code (e.g., EUR) and amount (Decimal).
+  // Amount must be positive.
+  Lab.Global.UMoney money                                  = 3;
+  // The period type of the limit. Must be one of [WEEK, MONTH].
+  .Lab.Substance.Limits.Global.PeriodTypeValue period_type = 4;
+  // The type of limit. Must be one of [LOSS, DEPOSIT], default is LOSS.
+  .Lab.Substance.Limits.Global.LimitTypeValue limit_type   = 5;
+}
+
+// The response message indicating the result of setting the limit.
+message Response {
+  // Either an Ok message or an Error message.
+  oneof either {
+    // The Ok message indicating the result of setting the limit.
+    Ok ok       = 1;
+    // The Error message indicating the kind of error that occurred.
+    Error error = 2;
+  }
+
+  // The Ok message indicating the result of setting the limit.
+  message Ok {
+    // The limit that was set.
+    .Lab.Substance.Limits.Global.Limit limit = 1;
+    // Indicates whether setting the limit was successful.
+    Google.Protobuf.BoolValue success        = 2;
+  }
+
+  // The Error message indicating the kind of error that occurred.
+  message Error {
+    // The kind of error that occurred.
+    Lab.Global.InputFieldError.ErrorKindValue kind = 1;
+  }
+}

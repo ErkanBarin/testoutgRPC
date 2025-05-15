@@ -1,0 +1,133 @@
+syntax = "proto3";
+package Lab.Substance.Limits.Global;
+
+import "lab_protobuf/google_protobuf.proto";
+import "lab_protobuf/global/udecimal.proto";
+import "lab_protobuf/global/currency_code.proto";
+import "lab_protobuf/global/datetime.proto";
+
+// Represents a limit for a user.
+message Limit {
+  // The ID of the limit.
+  Google.Protobuf.UInt64Value id              = 1;
+  // The ID of the user to whom the limit applies.
+  Google.Protobuf.UInt64Value user_id         = 2;
+  // The currency of the limit.
+  .Lab.Global.CurrencyCodeValue currency      = 3;
+  // The type of limit. Accepted values: [LOSS, DEPOSIT].
+  LimitTypeValue limit_type                   = 4;
+  // The period type of the limit. Accepted values: [DAY, WEEK, MONTH].
+  PeriodTypeValue period_type                 = 5;
+  // The active amount of the limit.
+  Amount active_amount                        = 6;
+  // The active counter of the limit.
+  Counter active_counter                      = 7;
+  // The unconfirmed amount of the limit.
+  Amount unconfirmed_amount                   = 8;
+  // The timestamp when the deletion of the limit was requested.
+  .Lab.Global.DateTime delete_requested_at    = 9;
+  // The status of the limit request. Accepted values: [PENDING, ACTIVE, REJECTED, EXPIRED].
+  RequestStatusValue request_status           = 10;
+  // The timestamp until which the deletion is blocked.
+  .Lab.Global.DateTime deletion_blocked_until = 11;
+}
+
+// Represents an error message.
+message Error {
+  // The error message.
+  Google.Protobuf.StringValue message = 1;
+}
+
+// Enum representing the type of limit.
+enum LimitType {
+  LOSS    = 0;
+  DEPOSIT = 1;
+}
+
+// All the possible transaction types that can be handled
+enum TransactionType {
+  WIN = 0;
+  BET = 1;
+  WIN_ROLLBACK = 2;
+  BET_ROLLBACK = 3;
+}
+
+// Wrapper for LimitType enum.
+message LimitTypeValue {
+  LimitType value = 1;
+}
+
+// Enum representing the period type of the limit.
+enum PeriodType {
+  DAY   = 0;
+  WEEK  = 1;
+  MONTH = 2;
+}
+
+// Wrapper for PeriodType enum.
+message PeriodTypeValue {
+  PeriodType value = 1;
+}
+
+// Enum representing the status of the limit request.
+enum RequestStatus {
+  PENDING  = 0;
+  ACTIVE   = 1;
+  REJECTED = 2;
+  EXPIRED  = 3;
+}
+
+// Wrapper for RequestStatus enum.
+message RequestStatusValue {
+  RequestStatus value = 1;
+}
+
+// Represents an amount associated with a limit.
+message Amount {
+  // The ID of the amount.
+  .Google.Protobuf.UInt64Value id                 = 1;
+  // The amount value.
+  .Lab.Global.UDecimal amount                     = 2;
+  // Indicates whether confirmation is required.
+  Google.Protobuf.BoolValue requires_confirmation = 3;
+  // The timestamp when the amount was confirmed.
+  .Lab.Global.DateTime confirmed_at               = 4;
+  // Indicates whether the amount is active.
+  Google.Protobuf.BoolValue active                = 5;
+  // The timestamp when the cooldown period ends.
+  .Lab.Global.DateTime cooldown_ends_at           = 6;
+}
+
+// Represents a counter associated with a limit.
+message Counter {
+  // The ID of the counter.
+  Google.Protobuf.UInt64Value id   = 1;
+  // The counter amount.
+  .Lab.Global.UDecimal amount      = 2;
+  // The timestamp when the counter is valid from.
+  .Lab.Global.DateTime valid_from  = 3;
+  // The timestamp when the counter is valid until.
+  .Lab.Global.DateTime valid_until = 4;
+}
+
+enum LimitLog {
+  LIMIT_SET                       = 0;
+  DECREASE_LIMIT_AMOUNT           = 1;
+  INCREASE_LIMIT_AMOUNT_REQUESTED = 2;
+  INCREASE_LIMIT_AMOUNT_CONFIRMED = 3;
+  INCREASE_LIMIT_AMOUNT_REJECTED  = 4;
+  DELETE_LIMIT_REQUESTED          = 5;
+  DELETE_LIMIT_CONFIRMED          = 6;
+  DELETE_LIMIT_REJECTED           = 7;
+  LIMIT_REACHED                   = 8;
+  LIMIT_RENEWED                   = 9;
+}
+
+message LimitLogValue {
+  LimitLog value = 1;
+}
+
+message DateTimeRange {
+  Lab.Global.DateTime from = 1;
+  Lab.Global.DateTime to = 2;
+}

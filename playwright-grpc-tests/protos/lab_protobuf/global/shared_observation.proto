@@ -1,0 +1,31 @@
+syntax = "proto3";
+package Lab.Global.SharedObservation;
+
+message Response {
+  oneof either {
+    Ok ok       = 1;
+    Error error = 2;
+  }
+
+  message Ok {
+    bytes uuid = 1;
+  }
+
+  message Error {
+    KindValue observation = 1;
+
+    enum Kind {
+      ALREADY_EXISTS = 0;
+      UNAVAILABLE    = 1;
+    }
+
+    message KindValue {
+      Kind value = 1;
+    }
+  }
+}
+
+enum Operation {
+  OBSERVE   = 0;
+  UNOBSERVE = 1;
+}

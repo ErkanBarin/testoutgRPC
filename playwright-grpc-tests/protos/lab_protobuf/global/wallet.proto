@@ -1,0 +1,13 @@
+syntax = "proto3";
+package Lab.Global;
+
+message Wallet {
+  string iss       = 1;
+  string aud       = 2;
+  string domain    = 3;
+  string statement = 4;
+  string version   = 5;
+  string nonce     = 7;
+  string iat       = 8;
+  string signature = 9;
+}

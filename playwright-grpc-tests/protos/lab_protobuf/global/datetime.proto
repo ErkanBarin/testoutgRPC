@@ -1,0 +1,9 @@
+syntax = "proto3";
+package Lab.Global;
+
+import "lab_protobuf/elixirpb.proto";
+
+message DateTime {
+  option (elixirpb.message).typespec = "DateTime.t";
+  int64 microseconds                 = 1;
+}

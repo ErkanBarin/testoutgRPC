@@ -1,0 +1,13 @@
+syntax = "proto3";
+package Lab.Global;
+
+enum SuspensionKind {
+  NOT_FOUND         = 0;
+  ALREADY_SUSPENDED = 1;
+  NOT_ALLOWED       = 2;
+  FAILED            = 3;
+}
+
+message SuspensionKindValue {
+  SuspensionKind value = 1;
+}

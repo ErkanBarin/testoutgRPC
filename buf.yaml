@@ -1,0 +1,8 @@
+version: v1
+deps:
+  - buf.build/googleapis/googleapis
+  - buf.build/coingaming/protobuf
+  - buf.build/lab/protobuf
+build:
+  excludes:
+    - grpc-gateway

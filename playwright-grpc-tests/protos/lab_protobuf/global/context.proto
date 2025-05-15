@@ -1,0 +1,96 @@
+syntax = "proto3";
+package Lab.Global;
+
+import "lab_protobuf/google_protobuf.proto";
+import "lab_protobuf/global/shared_observation.proto";
+import "lab_protobuf/global/crud_operation.proto";
+import "lab_protobuf/elixirpb.proto";
+
+// generic server-side context
+// is used when caller is trusted Flask
+
+message Context {
+  uint32 operator_id                  = 10;
+  Google.Protobuf.UInt64Value site_id = 1;
+  string source_flask_name            = 2;
+  bytes source_flask_instance_uuid    = 3;
+  uint64 nonce                        = 9;
+
+  oneof either {
+    ReactionContext reaction       = 4;
+    ElementContext element         = 5;
+    ObservationContext observation = 6;
+    EffectContext effect           = 7;
+  }
+
+
+  /* 
+  There is no such mandatory segregation for exposing APIs, as best practices we’re encouraging support following contexts;
+
+  - User itself: The context user and the user are the same. The subject_info value should be filled with user info. The subject_info.user_id is fulfilled within user_token, and the token's validity is verified. Service developers need to check the request's user_id and the user_id in subject_info.
+
+  - Service to service: There is no user info. The subject_info value would be nil or an empty struct. Lab has functional security for service-to-service communication.
+
+  - Admin to service: The context user and the user are different. The subject_info value should be filled with admin info. Lab has functional security for admin operations and row-level security based on site_id. Service developers need to check the request's site_id and the site_ids in subject_info. The subject_info.user_id is fulfilled within user_token, and the token's validity is verified.
+  */
+  SubjectInfo subject_info = 8;
+
+  TraceInfo trace_info = 18;
+
+  message ReactionContext {
+    Google.Protobuf.StringValue target_flask_name         = 1;
+    Google.Protobuf.BytesValue target_flask_instance_uuid = 2;
+    Google.Protobuf.UInt64Value flask_timeout             = 3;
+    Google.Protobuf.UInt64Value timeout                   = 4;
+  }
+
+  message ElementContext {
+    Google.Protobuf.StringValue target_flask_name         = 1;
+    Google.Protobuf.BytesValue target_flask_instance_uuid = 2;
+    Google.Protobuf.UInt64Value flask_timeout             = 3;
+    Google.Protobuf.UInt64Value timeout                   = 4;
+  }
+
+  message ObservationContext {
+    Google.Protobuf.StringValue target_flask_name         = 1;
+    Google.Protobuf.BytesValue target_flask_instance_uuid = 2;
+    Lab.Global.SharedObservation.Operation operation      = 3;
+    bytes observation_uuid                                = 4;
+    // for internal consumption only, should never be encoded/decoded in reality
+    ObserverCallback observer_callback               = 5;
+    repeated Lab.Global.CrudOperation crud_operation = 6;
+    bool durable                                     = 7;
+    bool fifo                                        = 8;
+    Google.Protobuf.UInt64Value max_concurrency      = 9;
+  }
+
+  message EffectContext {
+    string target_flask_name         = 1;
+    bytes target_flask_instance_uuid = 2;
+    bytes observation_uuid           = 3;
+    // for internal consumption only, should never be encoded/decoded in reality
+    ObserverCallback observer_callback           = 4;
+    Google.Protobuf.BytesValue effect_uuid       = 5;
+    Lab.Global.CrudOperationValue crud_operation = 6;
+    uint32 attempt_number                        = 7;
+  }
+
+  message ObserverCallback {
+    // TODO:
+    // - use `effect_request` as first argument type, which should be a sum type of all effect requests
+    // - use `effect_context` as second argument type, which should be a `Context.effect_context`
+    option (elixirpb.message).typespec = "(term, LabFlask.Proto.Lab.Global.Context.t -> LabFlask.Proto.Lab.Global.SharedEffect.Response.t)";
+  }
+
+  message TraceInfo {
+    string trace_id  = 1;
+    string parent_id = 2;
+    uint32 priority  = 3;
+  }
+
+  message SubjectInfo {
+    Google.Protobuf.StringValue user_token = 1;
+    Google.Protobuf.UInt64Value user_id    = 2;
+    repeated uint64 site_ids               = 3;
+  }
+}

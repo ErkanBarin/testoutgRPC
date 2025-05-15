@@ -1,0 +1,84 @@
+syntax = "proto3";
+package Lab.Global.InputFieldError;
+
+// Generic errors which might happen
+// during parsing, verification and fetching
+// any act input data from Request/Context.
+//
+// It covers the most cases, but at the same time
+// it's very generic. If this enum is not
+// granular enough - create your own under
+// more specific namespace.
+
+message Error {
+  MessageKind message_kind = 1;
+  // Location of problematic field, it's repeated index
+  // because problem can be inside of nested or repeated message.
+  //
+  // For example [3, 1, 0, 2] means that problem occurred in
+  // field number 3, which is message, where problem occurred in
+  // field number 1 which is repeated message and problematic item is in
+  // position 0 (first list item) which is the message, which have a
+  // problematic field number 2. Maps are not supported.
+  //
+  // Protobuf schema is segregated from the data and known in both
+  // compile-time and runtime, so we can express field_location
+  // in such generic way and still be able to decode and show meaningful
+  // error messages to user if it's needed.
+  repeated uint32 field_location = 2;
+  ErrorKind error_kind           = 3;
+}
+
+enum MessageKind {
+  // In gRPC API version segregated context does not exist,
+  // so it's always will be first default enum value without
+  // any runtime overhead.
+  REQUEST = 0;
+  CONTEXT = 1;
+}
+
+enum ErrorKind {
+  // All proto3 messages are optional, but sometimes
+  // message presence is required by source code.
+  REQUIRED = 0;
+  // Sometimes data is required to be in some
+  // specific format (for example DER binary encoding)
+  // which is not the part of proto3 type system.
+  // This error shows the failure of custom parser.
+  PARSING_FAILED = 1;
+  // Even if custom parser succeeded, sometimes data
+  // needs to be verified somehow, for example
+  // signature needs to be cryptographically verified.
+  VERIFICATION_FAILED = 2;
+  // Even verified data might be not supported by source code (yet).
+  // For example currency code. Program might be able to
+  // work with BTC but not with LTC.
+  NOT_SUPPORTED = 3;
+  // Sometimes protobuf term is not data itself, but reference
+  // to some other data, located somewhere else, for example
+  // in database or other flask, and this resource might be not found.
+  NOT_FOUND = 4;
+  // For errors where invoker doesn't have enough funds to perform transaction
+  INSUFFICIENT_FUNDS = 5;
+  // If some field provided in request is not unique (but it must be)
+  NOT_UNIQUE = 6;
+  // Sometimes resource needs to be fetched from external storage
+  // like database or other Flask (for example fetch element by reference).
+  // These operations often imply side effects like IO usage and may fail.
+  // We introduce this kind of error mostly for source code consistency and simplicity,
+  // it's not very useful for recepient.
+  OTHER_ERROR = 7;
+  // There may be aditional restrictions beside the ones set by the Protobuf
+  // As an example: for percent is defined the restriction value >=0 and value <= 100
+  NOT_ALLOWED = 8;
+  // For bad request responses from an external endpoint, ex: Hub88 APIs
+  BAD_REQUEST = 9;
+  // If some keys are expected to be configured in the envs, but not.
+  NOT_CONFIGURED = 10;
+  // For failed external requests or unhandled cases, where we don't want an exception to raise
+  FAILED = 11;
+}
+
+message ErrorKindValue {
+  ErrorKind value = 1;
+}

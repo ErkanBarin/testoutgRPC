@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package Lab.Substance.Limits.Reaction.IncreaseCounters;
+
+import "coingaming_protobuf/global/input_field_error.proto";
+import "lab_protobuf/google_protobuf.proto";
+import "coingaming_protobuf/substance/limits/global.proto";
+import "lab_protobuf/global/money.proto";
+
+// The IncreaseCounters service allows updated the active counter for a user.
+message Request {
+  uint64 user_id = 1;
+  // The amount of money to increase/decrease the counter. It's composed by a currency_code and a decimal amount.
+  Lab.Global.Money money = 2;
+  // The type of limit to update the counter. One of [LOSS, DEPOSIT].
+  .Lab.Substance.Limits.Global.LimitTypeValue limit_type = 3;
+  // The ID of the site where the update counter request is being performed.
+  Google.Protobuf.UInt64Value site_id = 4;
+  // The transaction type to check.
+  // Depending on the type the counters are decremented or incremented in value
+  .Lab.Substance.Limits.Global.TransactionType transaction_type = 5;
+}
+
+// The response message indicating the result of the update counter request.
+message Response {
+  // Either an Ok message or an Error message.
+  oneof either {
+    // The Ok message indicating the result of the request.
+    Ok ok = 1;
+    // The Error message indicating the kind of error that occurred.
+    Error error = 2;
+  }
+
+  // The Ok message indicating the result of the operation.
+  message Ok {
+    // The result of the operation.
+    Google.Protobuf.BoolValue success                 = 1;
+  }
+
+  // The Error message indicating the kind of error that occurred.
+  message Error {
+    // The kind of error that occurred.
+    Lab.Global.InputFieldError.ErrorKindValue kind = 1;
+  }
+}

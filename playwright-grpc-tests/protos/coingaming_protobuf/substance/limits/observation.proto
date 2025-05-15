@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package Lab.Rpc.Limits.Observation;
+
+import "coingaming_protobuf/substance/limits/observation/limit_autosized.proto";
+import "coingaming_protobuf/substance/limits/observation/limit_reached_notification.proto";
+import "coingaming_protobuf/substance/limits/effect/limit_autosized.proto";
+import "coingaming_protobuf/substance/limits/effect/limit_reached_notification.proto";
+import "lab_protobuf/global/context.proto";
+
+message LimitAutosizedRequest {
+  .Lab.Global.Context context = 1;
+  .Lab.Substance.Limits.Observation.LimitAutosized.Request request = 2;
+}
+
+message LimitReachedNotificationRequest {
+  .Lab.Global.Context context = 1;
+  .Lab.Substance.Limits.Observation.LimitReachedNotification.Request request = 2;
+}
+
+service Service {
+  rpc LimitAutosized(LimitAutosizedRequest) returns (stream .Lab.Substance.Limits.Effect.LimitAutosized.Request);
+  rpc LimitReachedNotification(LimitReachedNotificationRequest) returns (stream .Lab.Substance.Limits.Effect.LimitReachedNotification.Request);
+}

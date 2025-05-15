@@ -1,0 +1,15 @@
+syntax = "proto3";
+package Lab.Global;
+
+enum SortDirection {
+  ASC              = 0;
+  DESC             = 1;
+  ASC_NULLS_LAST   = 2;
+  ASC_NULLS_FIRST  = 3;
+  DESC_NULLS_LAST  = 4;
+  DESC_NULLS_FIRST = 5;
+}
+
+message SortDirectionValue {
+  SortDirection value = 1;
+}

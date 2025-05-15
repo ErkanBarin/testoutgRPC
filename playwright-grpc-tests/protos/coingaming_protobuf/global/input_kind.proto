@@ -1,0 +1,11 @@
+syntax = "proto3";
+package Lab.Global;
+
+enum InputKind {
+  TEXT    = 0;
+  DECIMAL = 1;
+  INTEGER = 2;
+  OPTIONS = 3;
+  FILE    = 4;
+  DATE    = 5;
+}

@@ -1,0 +1,12 @@
+syntax = "proto3";
+package Lab.Global;
+
+import "lab_protobuf/elixirpb.proto";
+
+message Decimal {
+  option (elixirpb.message).typespec = "Decimal.t";
+
+  bool negative = 1;
+  uint64 coef   = 2;
+  int32 exp     = 3;
+}

@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package Lab.Substance.Limits.Reaction.CheckLimitWithCounter;
+
+import "coingaming_protobuf/global/input_field_error.proto";
+import "lab_protobuf/google_protobuf.proto";
+import "coingaming_protobuf/substance/limits/global.proto";
+import "lab_protobuf/global/umoney.proto";
+
+// The CheckLimitWithCounter service allows checking if a user's limit is within the allowed range based on the provided counter and limit type.
+// If the user can bet (i.e., has remaining counter limit), the counter is automatically increased.
+message Request {
+  // The ID of the user whose limit is being checked.
+  uint64 user_id = 1;
+  // The amount of money to check against the limit.
+  Lab.Global.UMoney money = 2;
+  // The type of limit to check.
+  .Lab.Substance.Limits.Global.LimitTypeValue limit_type = 3;
+  // The ID of the site where the limit check is being performed.
+  Google.Protobuf.UInt64Value site_id = 4;
+}
+
+// The response message indicating the result of the limit check.
+message Response {
+  // Either an Ok message or an Error message.
+  oneof either {
+    // The Ok message indicating the result of the limit check.
+    Ok ok = 1;
+    // The Error message indicating the kind of error that occurred.
+    Error error = 2;
+  }
+
+  // The Ok message indicating the result of the limit check.
+  message Ok {
+    // The result of the limit check (true if within limit, false otherwise).
+    Google.Protobuf.BoolValue success           = 1;
+  }
+
+  // The Error message indicating the kind of error that occurred.
+  message Error {
+    // The kind of error that occurred.
+    Lab.Global.InputFieldError.ErrorKindValue kind = 1;
+  }
+}
